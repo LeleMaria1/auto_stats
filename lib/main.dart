@@ -6,6 +6,7 @@ import 'views/home_screen.dart';
 import 'views/vehicle_form_screen.dart';
 import 'viewmodels/vehicle_viewmodel.dart';
 import 'viewmodels/expense_viewmodel.dart';
+import 'views/expense_form_screen.dart';
 
 void main() {
   // Inicializa o FFI apenas se for web/desktop
@@ -29,9 +30,9 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(primarySwatch: Colors.blue),
         home: HomeScreen(),
         routes: {
-          '/vehicle-form': (context) => VehicleFormScreen(),
-          '/expense-form': (context) => Placeholder(),
           '/history': (context) => Placeholder(),
+          '/vehicle-form': (context) => VehicleFormScreen(),
+          '/expense-form': (context) => ExpenseFormScreen(),
         },
       ),
     );

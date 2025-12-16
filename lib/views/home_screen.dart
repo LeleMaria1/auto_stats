@@ -1,3 +1,4 @@
+import 'package:auto_stats/models/expense.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../viewmodels/vehicle_viewmodel.dart';
@@ -70,7 +71,7 @@ class HomeScreen extends StatelessWidget {
                       subtitle: Text('Toque para cadastrar'),
                       onTap: () {
                         Navigator.pushNamed(context, '/vehicle-form');
-                        },
+                      },
                     ),
                   ),
 
@@ -79,7 +80,7 @@ class HomeScreen extends StatelessWidget {
                 // Dashboard
                 Text(
                   'Dashboard',
-                  style: Theme.of(context).textTheme.titleLarge, // CORREÇÃO AQUI
+                  style: Theme.of(context).textTheme.titleLarge,
                 ),
                 SizedBox(height: 10),
                 DashboardCard(
@@ -104,10 +105,10 @@ class HomeScreen extends StatelessWidget {
 
                 SizedBox(height: 20),
 
-                
+                // Ações Rápidas
                 Text(
                   'Ações Rápidas',
-                  style: Theme.of(context).textTheme.titleLarge, 
+                  style: Theme.of(context).textTheme.titleLarge,
                 ),
                 SizedBox(height: 10),
                 Row(
@@ -117,7 +118,11 @@ class HomeScreen extends StatelessWidget {
                         icon: Icon(Icons.add_chart),
                         label: Text('Novo Gasto'),
                         onPressed: () {
-                          Navigator.pushNamed(context, '/expense-form');
+                          // CORREÇÃO: Navegação correta para expense-form
+                          Navigator.pushNamed(
+                            context,
+                            '/expense-form',
+                          );
                         },
                       ),
                     ),
@@ -139,6 +144,43 @@ class HomeScreen extends StatelessWidget {
                     ),
                   ],
                 ),
+
+                // Seção de despesas recentes (opcional, para melhorar UX)
+                if (expenseVM.expenses.isNotEmpty) ...[
+                  SizedBox(height: 20),
+                  Text(
+                    'Despesas Recentes',
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
+                  SizedBox(height: 10),
+                  Card(
+                    child: Column(
+                      children: expenseVM.expenses.take(3).map((expense) {
+                        return ListTile(
+                          leading: Icon(expense.category.icon),
+                          title: Text(expense.description),
+                          subtitle: Text('${expense.category.name} • ${expense.date.day}/${expense.date.month}/${expense.date.year}'),
+                          trailing: Text(
+                            'R\$${expense.value.toStringAsFixed(2)}',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: expense.category == ExpenseCategory.tax
+                                  ? Colors.red
+                                  : Colors.orange,
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                  if (expenseVM.expenses.length > 3)
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pushNamed(context, '/history');
+                      },
+                      child: Text('Ver todas as despesas (${expenseVM.expenses.length})'),
+                    ),
+                ],
               ],
             ),
           );
