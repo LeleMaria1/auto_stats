@@ -15,23 +15,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(
-          create: (_) => VehicleViewModel()
-            ..setVehicle(
-              Vehicle(
-                id: 1,
-                model: 'Fiat Uno',
-                year: 2020,
-                plate: 'ABC-1234',
-                currentMileage: 45000.0,
-                marketValue: 42000.0,
-                lastFipeUpdate: DateTime.now().subtract(Duration(days: 7)),
-              ),
-            ),
-        ),
-        ChangeNotifierProvider(
-          create: (_) => ExpenseViewModel()..loadMockData(),
-        ),
+        ChangeNotifierProvider(create: (_) => VehicleViewModel()),
+        ChangeNotifierProvider(create: (_) => ExpenseViewModel()),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
