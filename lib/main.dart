@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'models/vehicle.dart';
-import 'models/expense.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+
+import 'views/home_screen.dart';
+import 'views/vehicle_form_screen.dart';
 import 'viewmodels/vehicle_viewmodel.dart';
 import 'viewmodels/expense_viewmodel.dart';
-import 'views/home_screen.dart';
 
 void main() {
+  // Inicializa o FFI apenas se for web/desktop
+  // Em mobile, essa linha não causa problemas
+  sqfliteFfiInit();
+  
   runApp(MyApp());
 }
 
@@ -21,15 +26,12 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'AutoStats',
-        theme: ThemeData(
-          primarySwatch: Colors.blue,
-          visualDensity: VisualDensity.adaptivePlatformDensity,
-        ),
+        theme: ThemeData(primarySwatch: Colors.blue),
         home: HomeScreen(),
         routes: {
-          '/history': (context) => Placeholder(),
-          '/vehicle-form': (context) => Placeholder(),
+          '/vehicle-form': (context) => VehicleFormScreen(),
           '/expense-form': (context) => Placeholder(),
+          '/history': (context) => Placeholder(),
         },
       ),
     );

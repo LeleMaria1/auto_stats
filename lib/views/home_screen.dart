@@ -41,9 +41,24 @@ class HomeScreen extends StatelessWidget {
                       leading: Icon(Icons.directions_car),
                       title: Text(vehicleVM.vehicle!.model),
                       subtitle: Text('${vehicleVM.vehicle!.year} • ${vehicleVM.vehicle!.currentMileage} km'),
-                      trailing: IconButton(
-                        icon: Icon(Icons.update),
-                        onPressed: () => vehicleVM.fetchFipeValue(),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            icon: Icon(Icons.edit),
+                            onPressed: () {
+                              Navigator.pushNamed(
+                                context,
+                                '/vehicle-form',
+                                arguments: vehicleVM.vehicle,
+                              );
+                            },
+                          ),
+                          IconButton(
+                            icon: Icon(Icons.update),
+                            onPressed: () => vehicleVM.fetchFipeValue(),
+                          ),
+                        ],
                       ),
                     ),
                   )
@@ -55,7 +70,7 @@ class HomeScreen extends StatelessWidget {
                       subtitle: Text('Toque para cadastrar'),
                       onTap: () {
                         Navigator.pushNamed(context, '/vehicle-form');
-                      },
+                        },
                     ),
                   ),
 
@@ -89,10 +104,10 @@ class HomeScreen extends StatelessWidget {
 
                 SizedBox(height: 20),
 
-                // Ações rápidas
+                
                 Text(
                   'Ações Rápidas',
-                  style: Theme.of(context).textTheme.titleLarge, // CORREÇÃO AQUI
+                  style: Theme.of(context).textTheme.titleLarge, 
                 ),
                 SizedBox(height: 10),
                 Row(
