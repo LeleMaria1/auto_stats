@@ -41,13 +41,14 @@ class HomeScreen extends StatelessWidget {
                     child: ListTile(
                       leading: Icon(Icons.directions_car),
                       title: Text(vehicleVM.vehicle!.model),
-                      subtitle: Text('${vehicleVM.vehicle!.year} • ${vehicleVM.vehicle!.currentMileage} km'),
+                      subtitle: Text('${vehicleVM.vehicle!.year} • ${vehicleVM.vehicle!.currentMileage.toStringAsFixed(0)} km'),
                       trailing: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           IconButton(
                             icon: Icon(Icons.edit),
                             onPressed: () {
+                              // SOLUÇÃO: Navegação correta com argumentos
                               Navigator.pushNamed(
                                 context,
                                 '/vehicle-form',
@@ -118,11 +119,7 @@ class HomeScreen extends StatelessWidget {
                         icon: Icon(Icons.add_chart),
                         label: Text('Novo Gasto'),
                         onPressed: () {
-                          // CORREÇÃO: Navegação correta para expense-form
-                          Navigator.pushNamed(
-                            context,
-                            '/expense-form',
-                          );
+                          Navigator.pushNamed(context, '/expense-form');
                         },
                       ),
                     ),
@@ -145,7 +142,7 @@ class HomeScreen extends StatelessWidget {
                   ],
                 ),
 
-                // Seção de despesas recentes (opcional, para melhorar UX)
+                // Seção de despesas recentes
                 if (expenseVM.expenses.isNotEmpty) ...[
                   SizedBox(height: 20),
                   Text(

@@ -1,22 +1,41 @@
+import 'package:hive/hive.dart';
 import '../models/expense.dart';
-import '../utils/database_helper.dart';
 
 class ExpenseService {
-  final DatabaseHelper _dbHelper = DatabaseHelper();
+  Box<Expense> get _expenseBox => Hive.box<Expense>('expenses');
+  
+  int _getNextId() {
+    final box = _expenseBox;
+    if (box.isEmpty) return 1;
+    final maxId = box.values.map((e) => e.id ?? 0).reduce((a, b) => a > b ? a : b);
+    return maxId + 1;
+  }
 
   Future<int> insertExpense(Expense expense) async {
-    return await _dbHelper.insertExpense(expense);
+    final box = _expenseBox;
+    if (expense.id == null) {
+      expense.id = _getNextId();
+    }
+    await box.put(expense.id, expense);
+    return expense.id!;
   }
 
   Future<List<Expense>> getExpenses() async {
-    return await _dbHelper.getExpenses();
+    final box = _expenseBox;
+    return box.values.toList().reversed.toList(); // Mais recentes primeiro
   }
 
   Future<List<Expense>> getExpensesByCategory(ExpenseCategory category) async {
-    return await _dbHelper.getExpensesByCategory(category);
+    final box = _expenseBox;
+    return box.values
+        .where((expense) => expense.category == category)
+        .toList()
+        .reversed
+        .toList();
   }
 
   Future<int> deleteExpense(int id) async {
-    return await _dbHelper.deleteExpense(id);
+    await _expenseBox.delete(id);
+    return 1;
   }
 }

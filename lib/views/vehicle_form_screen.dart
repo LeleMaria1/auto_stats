@@ -22,12 +22,31 @@ class _VehicleFormScreenState extends State<VehicleFormScreen> {
   @override
   void initState() {
     super.initState();
-    // Preenche os campos se estiver editando
+    
+    // SOLUÇÃO: Usar PostFrameCallback para garantir que o contexto está disponível
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadVehicleData();
+    });
+  }
+
+  void _loadVehicleData() {
+    // Prioridade 1: Veículo passado como argumento
     if (widget.vehicle != null) {
       _modelController.text = widget.vehicle!.model;
       _yearController.text = widget.vehicle!.year.toString();
       _plateController.text = widget.vehicle!.plate ?? '';
       _mileageController.text = widget.vehicle!.currentMileage.toStringAsFixed(0);
+    } 
+    // Prioridade 2: Buscar do ViewModel (para navegação via rotas nomeadas)
+    else {
+      final vehicleVM = context.read<VehicleViewModel>();
+      final currentVehicle = vehicleVM.vehicle;
+      if (currentVehicle != null && mounted) {
+        _modelController.text = currentVehicle.model;
+        _yearController.text = currentVehicle.year.toString();
+        _plateController.text = currentVehicle.plate ?? '';
+        _mileageController.text = currentVehicle.currentMileage.toStringAsFixed(0);
+      }
     }
   }
 
@@ -45,14 +64,17 @@ class _VehicleFormScreenState extends State<VehicleFormScreen> {
 
     final vehicleVM = Provider.of<VehicleViewModel>(context, listen: false);
 
+    // Determinar qual veículo estamos editando
+    final existingVehicle = widget.vehicle ?? vehicleVM.vehicle;
+    
     final vehicle = Vehicle(
-      id: widget.vehicle?.id,
+      id: existingVehicle?.id, // Mantém o ID se estiver editando
       model: _modelController.text.trim(),
       year: int.parse(_yearController.text),
       plate: _plateController.text.trim().isNotEmpty ? _plateController.text.trim() : null,
       currentMileage: double.parse(_mileageController.text),
-      marketValue: widget.vehicle?.marketValue,
-      lastFipeUpdate: widget.vehicle?.lastFipeUpdate,
+      marketValue: existingVehicle?.marketValue, // Mantém o valor FIPE se existir
+      lastFipeUpdate: existingVehicle?.lastFipeUpdate,
     );
 
     await vehicleVM.saveVehicle(vehicle);
@@ -75,7 +97,7 @@ class _VehicleFormScreenState extends State<VehicleFormScreen> {
       appBar: AppBar(
         title: Text(widget.vehicle == null ? 'Cadastrar Veículo' : 'Editar Veículo'),
         actions: [
-          if (widget.vehicle != null)
+          if (widget.vehicle != null || context.read<VehicleViewModel>().vehicle != null)
             IconButton(
               icon: Icon(Icons.delete),
               onPressed: () async {
@@ -100,7 +122,7 @@ class _VehicleFormScreenState extends State<VehicleFormScreen> {
                 if (confirmed == true) {
                   final vehicleVM = Provider.of<VehicleViewModel>(context, listen: false);
                   await vehicleVM.deleteVehicle();
-                  if (vehicleVM.errorMessage == null) {
+                  if (vehicleVM.errorMessage == null && mounted) {
                     Navigator.pop(context);
                   }
                 }

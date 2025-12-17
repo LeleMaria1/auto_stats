@@ -1,10 +1,28 @@
+import 'package:hive/hive.dart';
+
+part 'vehicle.g.dart';
+
+@HiveType(typeId: 0)
 class Vehicle {
+  @HiveField(0)
   int? id;
+  
+  @HiveField(1)
   String model;
+  
+  @HiveField(2)
   int year;
+  
+  @HiveField(3)
   String? plate;
+  
+  @HiveField(4)
   double currentMileage;
+  
+  @HiveField(5)
   double? marketValue;
+  
+  @HiveField(6)
   DateTime? lastFipeUpdate;
 
   Vehicle({
@@ -16,30 +34,4 @@ class Vehicle {
     this.marketValue,
     this.lastFipeUpdate,
   });
-
-  Map<String, dynamic> toMap() {
-    return {
-      'id': id,
-      'model': model,
-      'year': year,
-      'plate': plate,
-      'currentMileage': currentMileage,
-      'marketValue': marketValue,
-      'lastFipeUpdate': lastFipeUpdate?.toIso8601String(),
-    };
-  }
-
-  factory Vehicle.fromMap(Map<String, dynamic> map) {
-    return Vehicle(
-      id: map['id'],
-      model: map['model'],
-      year: map['year'],
-      plate: map['plate'],
-      currentMileage: map['currentMileage'],
-      marketValue: map['marketValue'],
-      lastFipeUpdate: map['lastFipeUpdate'] != null
-          ? DateTime.parse(map['lastFipeUpdate'])
-          : null,
-    );
-  }
 }

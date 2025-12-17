@@ -1,8 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
 
+part 'expense.g.dart';
+
+@HiveType(typeId: 1)
 enum ExpenseCategory {
+  @HiveField(0)
   fuel,
+  
+  @HiveField(1)
   maintenance,
+  
+  @HiveField(2)
   tax,
 }
 
@@ -15,8 +24,6 @@ extension ExpenseCategoryExtension on ExpenseCategory {
         return 'Manutenção';
       case ExpenseCategory.tax:
         return 'Impostos';
-      default:
-        return 'Outro';
     }
   }
 
@@ -28,17 +35,25 @@ extension ExpenseCategoryExtension on ExpenseCategory {
         return Icons.build;
       case ExpenseCategory.tax:
         return Icons.receipt;
-      default:
-        return Icons.money;
     }
   }
 }
 
+@HiveType(typeId: 2)
 class Expense {
+  @HiveField(0)
   int? id;
+  
+  @HiveField(1)
   DateTime date;
+  
+  @HiveField(2)
   ExpenseCategory category;
+  
+  @HiveField(3)
   String description;
+  
+  @HiveField(4)
   double value;
 
   Expense({
@@ -48,24 +63,4 @@ class Expense {
     required this.description,
     required this.value,
   });
-
-  Map<String, dynamic> toMap() {
-    return {
-      'id': id,
-      'date': date.toIso8601String(),
-      'category': category.index,
-      'description': description,
-      'value': value,
-    };
-  }
-
-  factory Expense.fromMap(Map<String, dynamic> map) {
-    return Expense(
-      id: map['id'],
-      date: DateTime.parse(map['date']),
-      category: ExpenseCategory.values[map['category']],
-      description: map['description'],
-      value: map['value'],
-    );
-  }
 }
