@@ -63,4 +63,9 @@ class Expense {
     required this.description,
     required this.value,
   });
+
+  @override
+  String toString() {
+    return 'Expense{id: $id, desc: $description, value: $value}';
+  }
 }

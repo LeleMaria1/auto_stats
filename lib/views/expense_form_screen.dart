@@ -24,6 +24,13 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
   @override
   void initState() {
     super.initState();
+    
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadExpenseData();
+    });
+  }
+
+  void _loadExpenseData() {
     if (widget.expense != null) {
       _descriptionController.text = widget.expense!.description;
       _valueController.text = widget.expense!.value.toStringAsFixed(2);
@@ -69,6 +76,14 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
     await expenseVM.addExpense(expense);
 
     if (expenseVM.errorMessage == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(widget.expense == null 
+              ? '✅ Despesa salva com sucesso!' 
+              : '✅ Despesa atualizada com sucesso!'),
+          backgroundColor: Colors.green,
+        ),
+      );
       Navigator.pop(context);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -80,11 +95,55 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
     }
   }
 
+  Future<void> _deleteExpense(BuildContext context) async {
+    if (widget.expense == null || widget.expense!.id == null) return;
+
+    final confirmed = await showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Excluir Despesa'),
+        content: Text('Tem certeza que deseja excluir "${widget.expense!.description}"?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: Text('Excluir', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      final expenseVM = Provider.of<ExpenseViewModel>(context, listen: false);
+      await expenseVM.deleteExpense(widget.expense!.id!);
+      
+      if (expenseVM.errorMessage == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('✅ Despesa excluída com sucesso'),
+            backgroundColor: Colors.green,
+          ),
+        );
+        Navigator.pop(context);
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.expense == null ? 'Nova Despesa' : 'Editar Despesa'),
+        actions: [
+          if (widget.expense != null)
+            IconButton(
+              icon: Icon(Icons.delete, color: Colors.red),
+              onPressed: () => _deleteExpense(context),
+            ),
+        ],
       ),
       body: Consumer<ExpenseViewModel>(
         builder: (context, expenseVM, child) {
@@ -186,7 +245,7 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
                     child: Padding(
                       padding: EdgeInsets.symmetric(vertical: 12),
                       child: Text(
-                        'Salvar Despesa',
+                        widget.expense == null ? 'Salvar Despesa' : 'Atualizar Despesa',
                         style: TextStyle(fontSize: 16),
                       ),
                     ),

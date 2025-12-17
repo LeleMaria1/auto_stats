@@ -20,6 +20,13 @@ class ExpenseService {
     return expense.id!;
   }
 
+  // NOVO: Método para atualizar despesa existente
+  Future<int> updateExpense(Expense expense) async {
+    if (expense.id == null) return 0;
+    await _expenseBox.put(expense.id, expense);
+    return 1;
+  }
+
   Future<List<Expense>> getExpenses() async {
     final box = _expenseBox;
     return box.values.toList().reversed.toList(); // Mais recentes primeiro

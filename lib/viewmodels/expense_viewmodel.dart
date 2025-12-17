@@ -31,15 +31,27 @@ class ExpenseViewModel with ChangeNotifier {
     }
   }
 
+  // Método unificado para adicionar/editar
   Future<void> addExpense(Expense expense) async {
     setLoading(true);
     try {
-      final id = await _expenseService.insertExpense(expense);
-      expense.id = id;
-      _expenses.insert(0, expense);
+      if (expense.id == null) {
+        // Nova despesa
+        final id = await _expenseService.insertExpense(expense);
+        expense.id = id;
+        _expenses.insert(0, expense);
+      } else {
+        // Edição de despesa existente
+        await _expenseService.updateExpense(expense);
+        final index = _expenses.indexWhere((e) => e.id == expense.id);
+        if (index != -1) {
+          _expenses[index] = expense;
+        }
+      }
       _errorMessage = null;
+      notifyListeners();
     } catch (e) {
-      _errorMessage = 'Erro ao adicionar despesa: $e';
+      _errorMessage = 'Erro ao salvar despesa: $e';
     } finally {
       setLoading(false);
       notifyListeners();
@@ -52,6 +64,7 @@ class ExpenseViewModel with ChangeNotifier {
       await _expenseService.deleteExpense(expenseId);
       _expenses.removeWhere((expense) => expense.id == expenseId);
       _errorMessage = null;
+      notifyListeners();
     } catch (e) {
       _errorMessage = 'Erro ao excluir despesa: $e';
     } finally {

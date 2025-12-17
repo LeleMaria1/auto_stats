@@ -55,6 +55,74 @@ class _HistoryScreenState extends State<HistoryScreen> {
     return filtered.fold(0, (sum, expense) => sum + expense.value);
   }
 
+  // NOVO: Método para mostrar ações da despesa
+  void _showExpenseActions(BuildContext context, Expense expense, ExpenseViewModel expenseVM) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return Container(
+          padding: EdgeInsets.all(16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: Icon(Icons.edit, color: Colors.blue),
+                title: Text('Editar Despesa'),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.pushNamed(
+                    context,
+                    '/expense-form',
+                    arguments: expense,
+                  );
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.delete, color: Colors.red),
+                title: Text('Excluir Despesa'),
+                onTap: () async {
+                  Navigator.pop(context);
+                  final confirmed = await showDialog(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: Text('Excluir Despesa'),
+                      content: Text('Tem certeza que deseja excluir "${expense.description}"?'),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, false),
+                          child: Text('Cancelar'),
+                        ),
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, true),
+                          child: Text('Excluir', style: TextStyle(color: Colors.red)),
+                        ),
+                      ],
+                    ),
+                  );
+                  
+                  if (confirmed == true) {
+                    await expenseVM.deleteExpense(expense.id!);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('✅ Despesa excluída com sucesso'),
+                        backgroundColor: Colors.green,
+                      ),
+                    );
+                  }
+                },
+              ),
+              SizedBox(height: 10),
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text('Cancelar'),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -202,11 +270,16 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                 ],
                               ),
                               onTap: () {
+                                // Edição com toque simples
                                 Navigator.pushNamed(
                                   context,
                                   '/expense-form',
                                   arguments: expense,
                                 );
+                              },
+                              onLongPress: () {
+                                // Menu de ações com pressionamento longo
+                                _showExpenseActions(context, expense, expenseVM);
                               },
                             ),
                           );
@@ -314,8 +387,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
         return Colors.orange;
       case ExpenseCategory.tax:
         return Colors.red;
-      default:
-        return Colors.grey;
     }
   }
 }
